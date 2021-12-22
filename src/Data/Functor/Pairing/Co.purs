@@ -25,6 +25,7 @@ import Control.Monad.Writer.Class (class MonadTell)
 import Data.Functor.Pairing (type (⋈), sym)
 import Data.Identity (Identity(..))
 import Data.Newtype (unwrap)
+
 import Data.Tuple (Tuple(..))
 
 newtype Co w a = Co (forall r. w (a -> r) -> r)
@@ -71,7 +72,7 @@ instance monadStateCo :: ComonadStore s w => MonadState s (Co w) where
     case f s of
       Tuple a s1 -> Co \w -> peek s1 w a
 
-instance monadTellCo :: ComonadTraced t w => MonadTell t (Co w) where
+instance monadTellCo :: (Semigroup t, ComonadTraced t w) => MonadTell t (Co w) where
   tell t = Co \w -> track t w unit
 
 instance monadFreeCo :: (Functor f, ComonadCofree f w) => MonadFree (Co f) (Co w) where
